@@ -5233,12 +5233,10 @@ filter: saturate(1.15);
     transparent 360deg
   );
 
-  animation: border-spin 2s linear infinite; /* 🚀 nhanh hơn */
+  animation: border-spin 1.6s linear infinite; /* 🚀 nhanh hơn */
   
   /* glow mạnh hơn */
-  box-shadow:
-    0 0 10px rgba(34,197,94,0.55),
-    0 0 22px rgba(254,240,138,0.45);
+
 }
 
 /* card bên trong */
