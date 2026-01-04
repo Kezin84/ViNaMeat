@@ -148,7 +148,13 @@
       <!-- BANNER CAROUSEL -->
      <!-- BANNER CAROUSEL -->
 <div v-if="bannerList.length > 0" class="banner">
-  <img :src="bannerList[currentBannerIndex].URL" />
+  <transition name="banner-fade" mode="out-in">
+    <img
+      :key="bannerKey"
+      :src="bannerList[currentBannerIndex].URL"
+      alt="banner"
+    />
+  </transition>
 
   <!-- NÚT PREV -->
   <button
@@ -713,6 +719,7 @@
   </div>
     <button
     class="scroll-top-fab"
+    v-show="showScrollTop"
     :title="$t('common.scrollTop')"
     @click="scrollToTop"
   >
@@ -1251,6 +1258,8 @@ const cartListRef = ref(null)
 const params = new URLSearchParams(location.search)
 const maNCC = params.get('ncc')
 let bannerTimer = null
+const BANNER_INTERVAL = 4500
+const BANNER_FADE_MS = 450
 const tempQty = ref({})
 /* ===== STATE ===== */
 const menu = ref([])
@@ -1325,6 +1334,15 @@ onMounted(() => {
   }
 
   reloadData()
+})
+
+onMounted(() => {
+  nextTick(() => {
+    if (mainRef.value) {
+      mainRef.value.addEventListener('scroll', updateScrollTopVisibility)
+      updateScrollTopVisibility()
+    }
+  })
 })
 
 
@@ -1437,6 +1455,10 @@ const pageSize = 16
 const showCategories = ref(true)
 const showCart = ref(false)
 const currentBannerIndex = ref(0)
+const bannerKey = ref(0)
+const mainRef = ref(null)
+const showScrollTop = ref(false)
+const isBannerTransitioning = ref(false)
 
 /* ===== LOAD ===== */
 onMounted(async () => {
@@ -1465,14 +1487,6 @@ menu.value = (json.data.hang_hoa || []).filter(
   footers.value = json.data.footer || []
 
 
- startBannerAuto()
-  // Auto-rotate banners
-  if (bannerList.value.length > 1) {
-    setInterval(() => {
-      currentBannerIndex.value = 
-        (currentBannerIndex.value + 1) % bannerList.value.length
-    }, 3000)
-  }
   khuyenMaiInfo.value = (json.data.khuyenmai_info || []).filter(
   (k) => k.Ma_nha_cung_cap === maNCC
 )
@@ -1685,6 +1699,12 @@ const bannerList = computed(() =>
     })
 )
 
+watch(bannerList, () => {
+  currentBannerIndex.value = 0
+  bannerKey.value = 0
+  startBannerAuto()
+})
+
 
 const logo = computed(() =>
   logos.value.find((l) => l.Ma_nha_cung_cap === maNCC)
@@ -1780,16 +1800,32 @@ function startBannerAuto() {
 
   if (bannerList.value.length <= 1) return
 
-  bannerTimer = setInterval(() => {
-    nextBanner()
-  }, 3000)
+  bannerTimer = setTimeout(() => {
+    advanceBanner(1)
+  }, BANNER_INTERVAL)
 }
 
 function stopBannerAuto() {
   if (bannerTimer) {
-    clearInterval(bannerTimer)
+    clearTimeout(bannerTimer)
     bannerTimer = null
   }
+}
+
+function advanceBanner(direction = 1) {
+  if (!bannerList.value.length || isBannerTransitioning.value) return
+  isBannerTransitioning.value = true
+  stopBannerAuto()
+
+  const total = bannerList.value.length
+  currentBannerIndex.value =
+    (currentBannerIndex.value + direction + total) % total
+  bannerKey.value += 1
+  startBannerAuto()
+
+  setTimeout(() => {
+    isBannerTransitioning.value = false
+  }, BANNER_FADE_MS)
 }
 function getStatusKey(raw) {
   if (!raw) return ''
@@ -1818,16 +1854,11 @@ function selectAddress(place) {
 }
 
 function nextBanner() {
-  currentBannerIndex.value =
-    (currentBannerIndex.value + 1) % bannerList.value.length
-  startBannerAuto() // reset timer khi user bấm
+  advanceBanner(1)
 }
 
 function prevBanner() {
-  currentBannerIndex.value =
-    (currentBannerIndex.value - 1 + bannerList.value.length) %
-    bannerList.value.length
-  startBannerAuto()
+  advanceBanner(-1)
 }
 function incTemp(m) {
   tempQty.value[m.Ma_hang]++
@@ -1960,20 +1991,52 @@ const menuRef = ref(null)
 
 function scrollToTop() {
   nextTick(() => {
-    if (!menuRef.value) return
+    if (!menuRef.value || !mainRef.value) return
+
+    // Ẩn nút ngay khi click
+    showScrollTop.value = false
 
     const rect = menuRef.value.getBoundingClientRect()
+    const mainRect = mainRef.value.getBoundingClientRect()
 
     // 🔥 nếu menu đã gần đầu viewport thì KHÔNG scroll nữa
-    if (rect.top >= 0 && rect.top < 30) {
+    if (rect.top >= mainRect.top && rect.top < mainRect.top + 30) {
       return
     }
 
-    menuRef.value.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
+    // Ưu tiên toạ độ tương đối trong main, trừ chiều cao thanh search để không che card
+    const searchEl = document.querySelector('.search-wrapper')
+    const searchOffset =
+      searchEl && typeof searchEl.getBoundingClientRect === 'function'
+        ? searchEl.getBoundingClientRect().height + 12
+        : 0
+
+    const rawTarget =
+      typeof menuRef.value.offsetTop === 'number'
+        ? menuRef.value.offsetTop
+        : mainRef.value.scrollTop + (rect.top - mainRect.top)
+
+    const target = Math.max(0, rawTarget - searchOffset)
+
+    mainRef.value.scrollTo({
+      top: target,
+      behavior: 'smooth'
     })
   })
+}
+
+function updateScrollTopVisibility() {
+  const mainEl = mainRef.value
+  if (!mainEl) return
+
+  const scrollY = mainEl.scrollTop
+  const menuTop =
+    menuRef.value && typeof menuRef.value.offsetTop === 'number'
+      ? menuRef.value.offsetTop
+      : Number.POSITIVE_INFINITY
+
+  // Hiện khi đã cuộn qua phần menu
+  showScrollTop.value = scrollY > menuTop + 12
 }
 
 function getCache(key) {
@@ -2215,6 +2278,13 @@ watch(
   },
   { immediate: true } // 🔥 BẮT BUỘC
 )
+
+onUnmounted(() => {
+  stopBannerAuto()
+  if (mainRef.value) {
+    mainRef.value.removeEventListener('scroll', updateScrollTopVisibility)
+  }
+})
 function addFromDetailSidebar() {
   if (!selectedItem.value) return
 
@@ -2339,9 +2409,12 @@ const hasSale = computed(() =>
   
 .layout {
   display: grid;
-  grid-template-columns: 220px 1fr 320px;
+  grid-template-columns: clamp(170px, 18vw, 220px) minmax(0, 1fr) clamp(240px, 24vw, 320px);
   min-height: 100vh;
   background: #f9fafb;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 .menu {
   scroll-margin-top: 90px; /* = chiều cao search + padding */
@@ -2501,8 +2574,10 @@ const hasSale = computed(() =>
     background: #0e1729;
 
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+  overflow-x: hidden;
+  min-width: 0; /* allow center column to shrink on zoom */
 }
 
 .main::after {
@@ -2516,6 +2591,39 @@ const hasSale = computed(() =>
     rgba(14,23,41,0.85)
   );
   pointer-events: none;
+}
+
+/* ===== MAIN SCROLLBAR – SLIM & THEME COLORS ===== */
+.main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    #22c55e,
+    #16a34a
+  );
+  border-radius: 999px;
+  border: 2px solid rgba(14, 23, 41, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.main::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #16a34a,
+    #15803d
+  );
+}
+
+/* Firefox */
+.main {
+  scrollbar-color: #22c55e transparent;
 }
 
 
@@ -2564,10 +2672,20 @@ const hasSale = computed(() =>
   object-fit: contain;   /* 🔥 KHÔNG CẮT – GIỐNG CARD */
   object-position: center;
 border-radius: inherit; /* 👈 bo theo cha */
-    background: #0e1729;
+  background: #0e1729;
   box-shadow: 0 0 24px rgba(168, 250, 168, 0.45);
 }
 
+/* ===== BANNER FADE (DESKTOP) ===== */
+.banner-fade-enter-active,
+.banner-fade-leave-active {
+  transition: opacity 0.45s ease;
+}
+
+.banner-fade-enter-from,
+.banner-fade-leave-to {
+  opacity: 0;
+}
 
 
 .search input {
@@ -2686,7 +2804,7 @@ transition: background 0.2s ease, transform 0.1s ease;
   cursor: pointer;
   user-select: none;
 
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 20px rgba(0, 82, 31, 0.45);
   transition: all 0.2s ease;
 }
 .add-btn.added {
@@ -2705,12 +2823,13 @@ transition: background 0.2s ease, transform 0.1s ease;
 /* hover */
 .add-btn:hover {
   transform: translateY(-1px);
+  transform: scale(1.05);
   box-shadow: 0 10px 22px rgba(22, 163, 74, 0.6);
 }
 
 /* click */
 .add-btn:active {
-  transform: scale(0.97);
+  transform: scale(1.2);
   box-shadow: 0 4px 10px rgba(22, 163, 74, 0.35);
 }
 
@@ -2807,6 +2926,7 @@ transition: background 0.2s ease, transform 0.1s ease;
   z-index: 20;
    font-size: 13px;
   
+  min-width: 0; /* avoid overflow when zoomed */
 }
 
 
@@ -2949,25 +3069,31 @@ h3, h4, h5, p, span, div {
 /* MẶC ĐỊNH */
 .layout {
   display: grid;
-  grid-template-columns: 220px 1fr 320px;
+  grid-template-columns:
+    clamp(170px, 18vw, 220px)
+    minmax(0, 1fr)
+    clamp(240px, 24vw, 320px);
   min-height: 100vh;
   background: #f9fafb;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   transition: grid-template-columns 0.3s ease;
 }
 
 /* ẨN LEFT */
 .layout.hide-left {
-  grid-template-columns: 40px 1fr 320px;
+  grid-template-columns: 40px minmax(0, 1fr) clamp(240px, 24vw, 320px);
 }
 
 /* ẨN RIGHT */
 .layout.hide-right {
-  grid-template-columns: 220px 1fr 40px;
+  grid-template-columns: clamp(170px, 18vw, 220px) minmax(0, 1fr) 40px;
 }
 
 /* ẨN CẢ HAI */
 .layout.hide-left.hide-right {
-  grid-template-columns: 40px 1fr 40px;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
 }
 .sidebar-left.collapsed .sidebar-content,
 .sidebar-right.collapsed .sidebar-content {
@@ -4410,7 +4536,7 @@ font-size: 11px;
 /* ===== SCROLL TO TOP – GLOBAL FLOAT ===== */
 .scroll-top-fab {
   position: fixed;
-  right: 14px;
+  right: calc(clamp(240px, 24vw, 320px) + 18px); /* chừa chỗ sidebar phải, nằm trong khu vực main */
 
   /* desktop */
   bottom: 24px;
@@ -4493,6 +4619,12 @@ font-size: 11px;
 .scroll-top-fab:active {
   transform: scale(0.94);
   box-shadow: 0 4px 10px rgba(22, 163, 74, 0.45);
+}
+
+/* Khi ẩn sidebar phải, đẩy nút sát mép phải (layout nằm ngay trước button) */
+.layout.hide-right + .scroll-top-fab,
+.layout.hide-left.hide-right + .scroll-top-fab {
+  right: 14px;
 }
 
 /* ===== FILTER BAR ===== */
@@ -4774,7 +4906,7 @@ font-size: 11px;
   /* =====================================================
      SIDEBAR LEFT – DANH MỤC / LIÊN HỆ (TỪ PHẢI)
   ===================================================== */
-  .sidebar-left {
+ .sidebar-left {
     position: fixed !important;
     top: 0;
     right: 0;
@@ -4793,11 +4925,12 @@ font-size: 11px;
   transform: scale(0.9);
   flex-shrink: 0;
 }
-  .sidebar-left:not(.collapsed) {
+ .sidebar-left:not(.collapsed) {
     transform: translateX(0);
   }
  .scroll-top-fab {
-    bottom: 96px; /* né bottom bar */
+    right: 14px;      /* mobile: full width, bám sát mép phải */
+    bottom: 96px;     /* né bottom bar */
   }
   /* =====================================================
      SIDEBAR RIGHT – GIỎ HÀNG (FULL MÀN – TỪ TRÁI)
