@@ -4,7 +4,7 @@ import MenuOnline from '@/views/MenuOnline.vue'
 
 import QRBanking from '@/views/QRBanking.vue'
 
-import NhapHang from '@/views/NhapHang.vue'
+import NhapHang from '@/views/nhapHang.vue'
 import KhoHang from '@/views/KhoHang.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import Banner from '@/views/Banner.vue'
