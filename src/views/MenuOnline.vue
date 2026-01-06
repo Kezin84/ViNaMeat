@@ -3243,6 +3243,11 @@ border-radius: inherit; /* 👈 bo theo cha */
   font-size: 12px;
   color: #6b7280;
   margin-bottom: 6px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ===== ROW GIÁ + SL ===== */
