@@ -218,12 +218,13 @@
                   <div v-else class="product-thumbnail-empty"><i class="ri-file-image-fill"></i></div>
                 </div>
               </td>
-              <td class="text-center" @click.stop>
+              <td class="text-center" @click.stop="openEdit(item)">
                 <div class="supplementary-images" aria-label="Ảnh phụ">
                   <div
                     v-for="(key, slotIndex) in supplementaryImageKeys"
                     :key="key"
                     class="supplementary-image-slot"
+                    @click.stop="openEdit(item)"
                     :title="item[key] ? `Ảnh phụ ${slotIndex + 1}` : 'Chưa có ảnh phụ'"
                   >
                     <img
@@ -2424,6 +2425,10 @@ function onMoneyInput(e, key) {
   justify-content: center;
 }
 
+.data-table .supplementary-images {
+  grid-template-columns: repeat(3, 36px);
+}
+
 .supplementary-image-slot {
   position: relative;
   width: 100%;
@@ -2437,6 +2442,12 @@ function onMoneyInput(e, key) {
   justify-content: center;
   cursor: pointer;
   transition: transform 0.15s ease;
+}
+
+.data-table .supplementary-image-slot {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
 }
 
 .supplementary-thumb {
@@ -2453,6 +2464,10 @@ function onMoneyInput(e, key) {
   justify-content: center;
   color: rgba(148, 163, 184, 0.8);
   font-size: 18px;
+}
+
+.data-table .supplementary-thumb-empty {
+  font-size: 20px;
 }
 .supplementary-images-group {
   margin-top: 16px;
