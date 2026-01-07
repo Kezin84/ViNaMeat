@@ -415,7 +415,17 @@
   v-if="totalPages > 1"
   :key="pageKey"
 >
-
+<div v-if="totalPages > 1 && isMobile" class="powered-by powered-by-mobile">
+  POWERED BY
+  <a 
+    class="powered-link"
+    href="https://www.facebook.com/profile.php?id=100092383541391"
+    target="_blank"
+    rel="noopener"
+  >
+    FBC
+  </a>
+</div>
         <button
   :disabled="currentPage === 1"
   @click="
@@ -454,6 +464,28 @@
   ›
 </button>
 
+      </div>
+      <div v-if="isMobile && totalPages > 1" class="powered-by-mobile-footer">
+  POWERED BY
+  <a 
+    class="powered-link"
+    href="https://www.facebook.com/profile.php?id=100092383541391"
+    target="_blank"
+    rel="noopener"
+  >
+    FBC
+  </a>
+</div>
+      <div v-if="totalPages > 1" class="powered-by">
+        POWERED BY
+        <a
+          class="powered-link"
+          href="https://www.facebook.com/profile.php?id=100092383541391"
+          target="_blank"
+          rel="noopener"
+        >
+          FBC
+        </a>
       </div>
 <!-- FOOTER -->
     
@@ -546,7 +578,7 @@
   </div>
 
   <!-- BADGE SIZE -->
-  <div v-if="selectedItem.Size" class="meta-tag">
+  <div v-if="selectedItem.Size" class="meta-tag size-badge">
     Size: {{ selectedItem.Size }}
   </div>
 
@@ -596,7 +628,7 @@
   <textarea
     rows="2"
     v-model="itemNotes[selectedItem.Ma_hang]"
-    :placeholder="$t('menu.notePlaceholder') || 'VD: ít cay, không hành, thêm sốt...'"
+   
   ></textarea>
 </div>
 
@@ -874,7 +906,7 @@
         </div>
 
         <!-- TAG SIZE (NẾU CÓ) -->
-        <div v-if="selectedItem.Size" class="meta-tag">
+        <div v-if="selectedItem.Size" class="meta-tag size-badge">
            Size: {{ selectedItem.Size }}
         </div>
 
@@ -3430,6 +3462,248 @@ transition: background 0.2s ease, transform 0.1s ease;
   box-shadow: none;
   transform: none;
 }
+/* ===== POWERED BY DESKTOP - WIDER VERSION ===== */
+.powered-by {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  
+  margin: -12px 0 26px;
+  padding: 24px 40px;
+  
+  border-radius: 14px;
+  
+  /* NỀN XANH ĐẬM TECH */
+  background: linear-gradient(
+    135deg,
+    #052e16 0%,
+    #14532d 50%,
+    #052e16 100%
+  );
+  
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.45),
+    0 0 30px rgba(34, 197, 94, 0.15),
+    inset 0 1px 0 rgba(34, 197, 94, 0.2);
+  
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  
+  /* CHỮ TRẮNG SÁNG */
+  color: #ffffff;
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(34, 197, 94, 0.4);
+  
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  
+  width: fit-content;
+  min-width: 320px;
+  
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.powered-by::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(34, 197, 94, 0.04) 2px,
+      rgba(34, 197, 94, 0.04) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(34, 197, 94, 0.04) 2px,
+      rgba(34, 197, 94, 0.04) 4px
+    ),
+    radial-gradient(
+      circle at 20% 50%,
+      rgba(34, 197, 94, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 50%,
+      rgba(16, 185, 129, 0.08) 0%,
+      transparent 50%
+    );
+  
+  pointer-events: none;
+  animation: techPulse 3s ease-in-out infinite;
+}
+
+.powered-by::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 197, 94, 0.8),
+    transparent
+  );
+  
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+  animation: scanLine 2s linear infinite;
+}
+
+.powered-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  padding: 6px 18px;
+  border-radius: 8px;
+  
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f0fdf4 100%
+  );
+  
+  color: #059669;
+  font-weight: 900;
+  text-decoration: none;
+  font-size: 12px;
+  
+  border: 2px solid #10b981;
+  
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 20px rgba(34, 197, 94, 0.5),
+    0 0 40px rgba(16, 185, 129, 0.3),
+    0 6px 16px rgba(0, 0, 0, 0.15);
+  
+  text-shadow: 
+    0 0 8px rgba(16, 185, 129, 0.6),
+    0 1px 2px rgba(5, 150, 105, 0.3);
+  
+  overflow: hidden;
+  letter-spacing: 2.2px;
+}
+
+.powered-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(16, 185, 129, 0.04) 1px,
+      rgba(16, 185, 129, 0.04) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(16, 185, 129, 0.04) 1px,
+      rgba(16, 185, 129, 0.04) 2px
+    );
+  
+  pointer-events: none;
+  animation: gridPulse 2s ease-in-out infinite;
+}
+
+.powered-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.4) 40%,
+    rgba(16, 185, 129, 0.1) 55%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: techShimmer 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.powered-link:hover {
+  transform: translateY(-2px);
+  
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #ecfdf5 100%
+  );
+  
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 0 30px rgba(34, 197, 94, 0.7),
+    0 0 50px rgba(16, 185, 129, 0.5),
+    0 8px 20px rgba(0, 0, 0, 0.2);
+  
+  border-color: #22c55e;
+  
+  text-shadow: 
+    0 0 12px rgba(16, 185, 129, 0.8),
+    0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+@keyframes techPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes scanLine {
+  0% { top: -50%; }
+  100% { top: 150%; }
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes techShimmer {
+  0% { transform: translateX(-120%); }
+  50% { transform: translateX(120%); }
+  100% { transform: translateX(140%); }
+}
+
+@media (max-width: 768px) {
+  .powered-by {
+    display: none;
+  }
+}
+
+
+
+@keyframes poweredShimmer {
+  0% { transform: translateX(-120%); }
+  55% { transform: translateX(120%); }
+  100% { transform: translateX(140%); }
+}
+@media (max-width: 768px) {
+  .powered-by {
+    display: none;
+  }
+}
 
 /* SIDEBAR RIGHT */
 .sidebar-right {
@@ -4430,6 +4704,38 @@ h3, h4, h5, p, span, div {
 }
 .meta-tag.inline {
   margin: 0 0 0 8px;
+}
+.meta-tag.size-badge {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #ffffff;
+  font-weight: 800;
+  border: 1px solid rgba(185, 28, 28, 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    0 6px 14px rgba(185, 28, 28, 0.35);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+.meta-tag.size-badge::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 40%,
+    rgba(255, 255, 255, 0.12) 55%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: sizeShimmer 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sizeShimmer {
+  0% { transform: translateX(-120%); }
+  55% { transform: translateX(120%); }
+  100% { transform: translateX(140%); }
 }
 
 
@@ -5538,9 +5844,9 @@ h3, h4, h5, p, span, div {
 /* ===== SCROLL TO TOP – GLOBAL FLOAT ===== */
 .scroll-top-fab {
   position: fixed;
-  right: calc(clamp(240px, 24vw, 320px) + 18px); /* chừa chỗ sidebar phải, nằm trong khu vực main */
-
-  /* desktop */
+  
+  /* 🔥 DESKTOP */
+  right: calc(clamp(240px, 24vw, 320px) + 18px);
   bottom: 24px;
 
   width: 44px;
@@ -5932,10 +6238,16 @@ h3, h4, h5, p, span, div {
  .sidebar-left:not(.collapsed) {
     transform: translateX(0);
   }
- .scroll-top-fab {
-    right: 14px;      /* mobile: full width, bám sát mép phải */
-    bottom: 96px;     /* né bottom bar */
+  .scroll-top-fab {
+    right: 14px !important; /* 🔥 sát mép phải */
+    bottom: 96px !important; /* 🔥 trên bottom bar 70px + khoảng cách */
+    
+    width: 48px; /* 🔥 to hơn tí cho dễ bấm */
+    height: 48px;
+    
+    z-index: 1150; /* 🔥 cao hơn bottom bar (1100) */
   }
+
   /* =====================================================
      SIDEBAR RIGHT – GIỎ HÀNG (FULL MÀN – TỪ TRÁI)
   ===================================================== */
@@ -6421,8 +6733,9 @@ h3, h4, h5, p, span, div {
   font-weight: bold;
   color: white;
   font-family: Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
   text-align: center;
-  padding: 0 56px;
+  padding: 14px;
   width: 100%;
 }
 .detail-add-btn {
@@ -6742,6 +7055,8 @@ h3, h4, h5, p, span, div {
     z-index: 2000;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .detail-header {
@@ -6757,8 +7072,8 @@ h3, h4, h5, p, span, div {
   }
 
   .detail-body {
-    flex: 1;
-    overflow-y: auto;
+    flex: 0 0 auto;
+    overflow: visible;
     padding: 16px;
   }
 
@@ -8436,5 +8751,209 @@ box-shadow: 0 4px 10px rgba(239, 243, 16, 0.45);
 
 .copy-again-btn:hover {
   background: #ecfdf5;
+}
+/* ===== POWERED BY - MOBILE (KHÔNG STICKY) ===== */
+/* ===== POWERED BY - MOBILE (KHÔNG STICKY) ===== */
+/* ===== POWERED BY MOBILE - GREEN TECH ===== */
+.powered-by-mobile-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: -15px auto 1px;
+  padding: 30px;
+  border-radius: 15px;
+  
+  background: linear-gradient(
+    135deg,
+    #052e16 0%,
+    #14532d 50%,
+    #052e16 100%
+  );
+  
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  
+  color: #ffffff;
+  text-shadow: 
+    0 0 8px rgba(255, 255, 255, 0.8),
+    0 0 16px rgba(34, 197, 94, 0.4);
+  
+  text-transform: uppercase;
+  
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(34, 197, 94, 0.15),
+    inset 0 1px 0 rgba(34, 197, 94, 0.2);
+  
+  width: fit-content;
+  overflow: hidden;
+}
+
+/* 🔥 BỔ SUNG: GRID + RADIAL GLOW */
+.powered-by-mobile-footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 15px;
+  
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(34, 197, 94, 0.04) 2px,
+      rgba(34, 197, 94, 0.04) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(34, 197, 94, 0.04) 2px,
+      rgba(34, 197, 94, 0.04) 4px
+    ),
+    radial-gradient(
+      circle at 20% 50%,
+      rgba(34, 197, 94, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 50%,
+      rgba(16, 185, 129, 0.08) 0%,
+      transparent 50%
+    );
+  
+  pointer-events: none;
+  animation: techPulse 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* 🔥 BỔ SUNG: SCAN LINE */
+.powered-by-mobile-footer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 197, 94, 0.8),
+    transparent
+  );
+  
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+  animation: scanLine 2s linear infinite;
+  z-index: 1;
+}
+
+.powered-by-mobile-footer .powered-link {
+  position: relative;
+  padding: 5px 14px;
+  border-radius: 6px;
+  
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f0fdf4 100%
+  );
+  
+  color: #059669;
+  font-weight: 900;
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  overflow: hidden;
+  z-index: 2; /* 🔥 BỔ SUNG */
+  
+  border: 2px solid #10b981;
+  
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 15px rgba(34, 197, 94, 0.5),
+    0 0 30px rgba(16, 185, 129, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  text-shadow: 
+    0 0 6px rgba(16, 185, 129, 0.6),
+    0 1px 2px rgba(5, 150, 105, 0.3);
+}
+
+.powered-by-mobile-footer .powered-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(16, 185, 129, 0.04) 1px,
+      rgba(16, 185, 129, 0.04) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(16, 185, 129, 0.04) 1px,
+      rgba(16, 185, 129, 0.04) 2px
+    );
+  
+  pointer-events: none;
+  animation: gridPulse 2s ease-in-out infinite;
+  z-index: 1; /* 🔥 BỔ SUNG */
+}
+
+.powered-by-mobile-footer .powered-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.4) 40%,
+    rgba(16, 185, 129, 0.1) 55%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: techShimmer 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2; /* 🔥 BỔ SUNG */
+}
+
+/* 🔥 BỔ SUNG: ANIMATIONS */
+@keyframes techPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes scanLine {
+  0% { top: -50%; }
+  100% { top: 150%; }
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes techShimmer {
+  0% { transform: translateX(-120%); }
+  50% { transform: translateX(120%); }
+  100% { transform: translateX(140%); }
+}
+
+@media (min-width: 769px) {
+  .powered-by-mobile-footer {
+    display: none !important;
+  }
 }
 </style>

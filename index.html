@@ -2,8 +2,9 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <!-- Thay đổi viewport này -->
+    <!-- 🔥 BỎ DÒNG NÀY -->
+    <!-- <link rel="icon" href="/favicon.ico" /> -->
+    
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -15,29 +16,126 @@
       rel="stylesheet"
     />
 
-    <title>Menu Online</title>
+    <title id="page-title">MENU</title>
     
-    <!-- Thêm CSS này vào head -->
+    <script>
+      (function() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const ncc = params.get('ncc');
+          
+          if (ncc) {
+            const cachedTitle = localStorage.getItem('SHOP_TITLE_' + ncc);
+            const cachedIcon = localStorage.getItem('SHOP_ICON_' + ncc);
+            
+            if (cachedTitle) {
+              document.title = cachedTitle;
+            } else {
+              document.title = 'MENU';
+            }
+            
+            if (cachedIcon) {
+              var link = document.querySelector("link[rel~='icon']");
+              if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                link.type = 'image/png';
+                document.head.appendChild(link);
+              }
+              link.href = cachedIcon;
+            } else {
+              // 🔥 BỎ FAVICON MẶC ĐỊNH
+              var link = document.querySelector("link[rel~='icon']");
+              if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                link.type = 'image/png';
+                document.head.appendChild(link);
+              }
+              link.href = 'data:,'; // 🔥 ICON TRỐNG
+            }
+          } else {
+            document.title = 'MENU';
+            // 🔥 BỎ FAVICON MẶC ĐỊNH
+            var link = document.querySelector("link[rel~='icon']");
+            if (!link) {
+              link = document.createElement('link');
+              link.rel = 'icon';
+              link.type = 'image/png';
+              document.head.appendChild(link);
+            }
+            link.href = 'data:,'; // 🔥 ICON TRỐNG
+          }
+        } catch (e) {
+          document.title = 'MENU';
+        }
+      })();
+    </script>
+    
     <style>
-      /* Ngăn Safari/Chrome zoom vào input */
+      /* 🔥 LOADING SCREEN */
+      #app-loader {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .loader-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
       input, 
       textarea, 
       select {
         font-size: 16px !important;
       }
       
-      /* Nếu muốn font nhỏ hơn cho design, dùng transform */
       input.small-text,
       textarea.small-text {
         font-size: 16px !important;
-        transform: scale(0.875); /* Tương đương 14px */
+        transform: scale(0.875);
         transform-origin: left top;
       }
     </style>
   </head>
 
   <body>
+    <!-- 🔥 LOADING SCREEN -->
+    <div id="app-loader">
+      <div class="loader-spinner"></div>
+    </div>
+    
     <div id="app"></div>
+    
     <script type="module" src="/src/main.ts"></script>
+    
+    <!-- 🔥 ẨN LOADER KHI VUE MOUNT -->
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          var loader = document.getElementById('app-loader');
+          if (loader) {
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 0.3s ease';
+            setTimeout(function() {
+              loader.remove();
+            }, 300);
+          }
+        }, 100);
+      });
+    </script>
   </body>
 </html>
