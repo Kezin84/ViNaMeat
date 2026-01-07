@@ -34,64 +34,55 @@
       </div>
       
   <!-- ===== 6 BUTTONS GRID: 3 x 2 ===== -->
-<div class="action-grid-6">
+<!-- ===== 8 BUTTONS GRID: 4 x 2 ===== -->
+<div class="action-grid-8">
   <!-- 1) Danh mục -->
-  <button
-    class="btn-filter"
-    :class="{ active: showCategoryFilter }"
-    @click="showCategoryFilter = !showCategoryFilter"
-  >
+  <button class="btn-filter" :class="{ active: showCategoryFilter }" @click="showCategoryFilter = !showCategoryFilter">
     <span class="btn-icon"><i class="ri-list-check"></i></span>
     <span class="btn-text">Danh mục</span>
     <span v-if="selectedCategory" class="filter-badge">1</span>
   </button>
 
-  <!-- 2) Khuyến mãi -->
-  <button
-    class="btn-filter"
-    :class="{ active: filterPromotion }"
-    @click="togglePromotionFilter"
-  >
+  <!-- 2) Ngôn ngữ - MỚI -->
+  <button class="btn-filter" :class="{ active: selectedLanguage }" @click="cycleLanguageFilter">
+    <span class="btn-icon"><i class="ri-global-line"></i></span>
+    <span class="btn-text">{{ getLanguageLabel() }}</span>
+  </button>
+
+  <!-- 3) Khuyến mãi -->
+  <button class="btn-filter" :class="{ active: filterPromotion }" @click="togglePromotionFilter">
     <span class="btn-icon"><i class="ri-price-tag-3-fill"></i></span>
     <span class="btn-text">Khuyến mãi</span>
   </button>
 
-  <!-- 3) Trạng thái -->
-  <button
-    class="btn-filter"
-    :class="{ active: filterStatus !== 'all' }"
-    @click="cycleStatusFilter"
-  >
- <span class="btn-icon">
-  <i
-    v-if="filterStatus === 'available'"
-    class="ri-verified-badge-fill"
-  ></i>
-
-  <span v-else-if="filterStatus === 'out'"><i class="ri-close-circle-fill"></i></span>
-
-  <span v-else><i class="ri-box-3-fill"></i></span>
-</span>
-
+  <!-- 4) Trạng thái -->
+  <button class="btn-filter" :class="{ active: filterStatus !== 'all' }" @click="cycleStatusFilter">
+    <span class="btn-icon">
+      <i v-if="filterStatus === 'available'" class="ri-verified-badge-fill"></i>
+      <span v-else-if="filterStatus === 'out'"><i class="ri-close-circle-fill"></i></span>
+      <span v-else><i class="ri-box-3-fill"></i></span>
+    </span>
     <span class="btn-text">{{ getStatusLabel() }}</span>
   </button>
 
-  <!-- 4) Export: Tên : Giá -->
+  <!-- 5) Sắp xếp - MỚI -->
+  <button class="btn-filter" @click="toggleSortOrder">
+    <span class="btn-icon">
+      <i v-if="sortOrder === 'desc'" class="ri-sort-desc"></i>
+      <i v-else class="ri-sort-asc"></i>
+    </span>
+    <span class="btn-text">{{ sortOrder === 'desc' ? 'Mới → Cũ' : 'Cũ → Mới' }}</span>
+  </button>
+
+  <!-- 6,7,8) Export -->
   <button class="btn-export" @click="exportText">
-    
-    <span class="btn-text">Xuất Tên : Giá</span>
+    <span class="btn-text">Tên : Giá</span>
   </button>
-
-  <!-- 5) Export: Tên hàng -->
   <button class="btn-export" @click="exportTen">
-    
-    <span class="btn-text">Xuất Tên hàng</span>
+    <span class="btn-text">Tên hàng</span>
   </button>
-
-  <!-- 6) Export: Giá bán -->
   <button class="btn-export" @click="exportGia">
-    
-    <span class="btn-text">Xuất Giá bán</span>
+    <span class="btn-text">Giá bán</span>
   </button>
 </div>
 
@@ -257,7 +248,7 @@
                 <span class="badge badge-currency">{{ item.Don_vi_tien_te || 'VND' }}</span>
               </td>
               <td class="text-center" @click.stop="openEdit(item, { focusField: 'Lang' })">
-                <span class="badge badge-lang">{{ item.Lang || 'vi' }}</span>
+               <span class="badge badge-lang">{{ getLanguageDisplayName(item.Lang) }}</span>
               </td>
               <td class="text-center" @click.stop="openEdit(item, { focusField: 'Trang_thai' })">
                 <span 
@@ -396,7 +387,7 @@
                 </div>
                 <div class="price-row">
                   <span class="price-label">Ngôn ngữ</span>
-                  <span class="price-value lang">{{ (item.Lang || 'vi').toUpperCase() }}</span>
+                  <span class="price-value lang">{{ getLanguageDisplayName(item.Lang) }}</span>
                 </div>
               
               </div>
@@ -1119,7 +1110,8 @@ const modalSupplementaryUploading = ref(supplementaryImageKeys.map(() => false))
 const list = ref([])
 const keyword = ref('')
 const selected = ref([])
-
+const sortOrder = ref('desc') // 'desc' = mới → cũ, 'asc' = cũ → mới
+const selectedLanguage = ref('') // '', 'vi', 'en', 'zh-CN', 'fil', 'ko'
 // Filter states
 const selectedCategory = ref('')
 const filterPromotion = ref(false)
@@ -1347,16 +1339,50 @@ function getStatusLabel() {
 }
 
 const hasActiveFilters = computed(() => {
-  return selectedCategory.value || filterPromotion.value || filterStatus.value !== 'all'
+  return selectedCategory.value || selectedLanguage.value || filterPromotion.value || filterStatus.value !== 'all'
 })
 
 function clearAllFilters() {
   selectedCategory.value = ''
+  selectedLanguage.value = ''
   filterPromotion.value = false
   filterStatus.value = 'all'
   currentPage.value = 1
 }
+function toggleSortOrder() {
+  sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
+  currentPage.value = 1
+}
 
+function cycleLanguageFilter() {
+  const langs = ['', 'vi', 'en', 'zh-CN', 'fil', 'ko']
+  const currentIndex = langs.indexOf(selectedLanguage.value)
+  selectedLanguage.value = langs[(currentIndex + 1) % langs.length]
+  currentPage.value = 1
+}
+
+function getLanguageLabel() {
+  const labels = {
+    '': 'Ngôn ngữ',
+   'vi': 'Tiếng Việt',
+    'en': 'English',
+    'zh-CN': 'Tiếng Trung',
+    'fil': 'Phillipines',
+    'ko': 'Hàn Quốc'
+  }
+  return labels[selectedLanguage.value] || 'Ngôn ngữ'
+}
+
+function getLanguageDisplayName(lang) {
+  const names = {
+    'vi': 'Tiếng Việt',
+    'en': 'English',
+    'zh-CN': 'Tiếng Trung',
+    'fil': 'Phillipines',
+    'ko': 'Hàn Quốc'
+  }
+  return names[lang] || (lang || 'vi').toUpperCase()
+}
 /* ===== SEARCH ===== */
 function handleSearch() {
   currentPage.value = 1
@@ -1496,6 +1522,11 @@ const filtered = computed(() =>
       if ((item.Danh_muc || 'Khác') !== selectedCategory.value) return false
     }
 
+    // Language filter - MỚI
+    if (selectedLanguage.value) {
+      if ((item.Lang || 'vi') !== selectedLanguage.value) return false
+    }
+
     // Promotion filter
     if (filterPromotion.value) {
       if (!item.Gia_Giam || item.Gia_Giam <= 0) return false
@@ -1510,9 +1541,13 @@ const filtered = computed(() =>
     return true
   })
 )
+
 const ordered = computed(() => {
-  // copy rồi đảo để không làm bẩn filtered/list
-  return [...filtered.value].reverse()
+  const arr = [...filtered.value]
+  if (sortOrder.value === 'desc') {
+    return arr.reverse() // Mới → Cũ
+  }
+  return arr // Cũ → Mới
 })
 
 const totalPages = computed(() => Math.ceil(ordered.value.length / pageSize) || 1)
@@ -3996,31 +4031,28 @@ function onMoneyInput(e, key) {
   cursor: not-allowed;
 }
 /* ===== 6 BUTTONS: 3x2 GRID ===== */
-.action-grid-6 {
+.action-grid-8 {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 14px;
 }
 
-/* ép 6 nút đều nhau */
-.action-grid-6 .btn-filter,
-.action-grid-6 .btn-export {
+.action-grid-8 .btn-filter,
+.action-grid-8 .btn-export {
   width: 100%;
-  height: 44px;              /* đồng bộ chiều cao */
-  justify-content: center;   /* canh giữa */
+  height: 44px;
+  justify-content: center;
   padding: 0 12px;
 }
 
-/* làm text/icon gọn hơn để fit đều */
-.action-grid-6 .btn-icon {
+.action-grid-8 .btn-icon {
   font-size: 16px;
 }
-.action-grid-6 .btn-text {
+.action-grid-8 .btn-text {
   font-size: 13px;
   font-weight: 600;
 }
-
 /* Xóa bộ lọc nằm riêng, canh phải */
 .clear-filter-row {
   display: flex;
@@ -4029,17 +4061,17 @@ function onMoneyInput(e, key) {
 
 /* MOBILE: vẫn 3 cột x 2 hàng (nếu muốn) */
 @media (max-width: 768px) {
-  .action-grid-6 {
+  .action-grid-8 {
     gap: 10px;
   }
 
-  .action-grid-6 .btn-filter,
-  .action-grid-6 .btn-export {
+  .action-grid-8 .btn-filter,
+  .action-grid-8 .btn-export {
     height: 42px;
     padding: 0 10px;
   }
 
-  .action-grid-6 .btn-text {
+  .action-grid-8 .btn-text {
     font-size: 12px;
   }
 }
