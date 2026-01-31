@@ -38,7 +38,7 @@
           <!-- DAY PICKERS -->
           <template v-if="filterType === 'day'">
             <div class="picker-group">
-              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(fromDateEl)">
+              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(fromDateEl)" @touchstart.stop="openPicker(fromDateEl)">
                 <div class="picker-icon"><i class="app-ico ri-calendar-line"></i></div>
                 <div class="picker-info">
                   <span class="picker-label">Từ ngày</span>
@@ -52,7 +52,7 @@
             <div class="picker-arrow"><i class="app-ico ri-arrow-right-line"></i></div>
 
             <div class="picker-group">
-              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(toDateEl)">
+              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(toDateEl)" @touchstart.stop="openPicker(toDateEl)">
                 <div class="picker-icon"><i class="app-ico ri-calendar-check-line"></i></div>
                 <div class="picker-info">
                   <span class="picker-label">Đến ngày</span>
@@ -67,7 +67,7 @@
           <!-- MONTH PICKERS -->
           <template v-if="filterType === 'month'">
             <div class="picker-group">
-              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(fromMonthEl)">
+              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(fromMonthEl)" @touchstart.stop="openPicker(fromMonthEl)">
                 <div class="picker-icon"><i class="app-ico ri-calendar-line"></i></div>
                 <div class="picker-info">
                   <span class="picker-label">Từ tháng</span>
@@ -80,7 +80,7 @@
             <div class="picker-arrow"><i class="app-ico ri-arrow-right-line"></i></div>
 
             <div class="picker-group">
-              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(toMonthEl)">
+              <button class="picker-btn" :class="{ invalid: isRangeInvalid }" @click="openPicker(toMonthEl)" @touchstart.stop="openPicker(toMonthEl)">
                 <div class="picker-icon"><i class="app-ico ri-calendar-check-line"></i></div>
                 <div class="picker-info">
                   <span class="picker-label">Đến tháng</span>
